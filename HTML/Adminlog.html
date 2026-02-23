@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login & Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 900px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .error {
+            color: #dc3545;
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8d7da;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        #admin-dashboard {
+            display: none;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .add-account-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .add-account-section h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        tr:hover {
+            background-color: #e9ecef;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            padding: 8px 15px;
+            font-size: 14px;
+            width: auto;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .btn-logout {
+            background: #6c757d;
+            margin-top: 20px;
+            max-width: 200px;
+        }
+
+        .btn-logout:hover {
+            background: #5a6268;
+        }
+
+        .success-message {
+            color: #28a745;
+            text-align: center;
+            margin-top: 10px;
+            padding: 10px;
+            background: #d4edda;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .first-account-notice {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SECTION -->
+    <div id="login-section" class="container">
+        <div class="login-container">
+            <h2>Admin Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="gmail">Gmail:</label>
+                    <input type="email" id="gmail" required placeholder="Enter your gmail">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" required placeholder="Enter your password">
+                </div>
+                <button type="submit">Login</button>
+                <div id="error" class="error"></div>
+            </form>
+            <p style="text-align: center; margin-top: 20px; color: #666; font-size: 14px;">
+                Note: If this is your first time, contact developer to create initial admin account.
+            </p>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD SECTION -->
+    <div id="admin-dashboard" class="container">
+        <div class="dashboard-header">
+            <h2>Admin Dashboard - Account Management</h2>
+            <span id="admin-welcome" style="color: #667eea; font-weight: 600;"></span>
+        </div>
+        
+        <!-- Add User Form -->
+        <div class="add-account-section">
+            <h3>Add New Account</h3>
+            <form id="addUserForm">
+                <div class="form-row">
+                    <input type="text" id="new-username" placeholder="Full Name" required>
+                    <input type="password" id="new-password" placeholder="Password" required>
+                    <input type="text" id="new-lrn" placeholder="LRN" required>
+                    <input type="email" id="new-gmail" placeholder="Gmail" required>
+                    <input type="date" id="new-dob" max="" required>
+                    <input type="text" id="new-grade" placeholder="Grade Level (e.g. 12)" required>
+                    <input type="text" id="new-strand" placeholder="Strand (e.g. ICT)" required>
+                    <input type="text" id="new-section" placeholder="Section (e.g. 1P)" required>
+                    <input type="text" id="new-studentNo" placeholder="Student No" class="full-width" required>
+                </div>
+                <button type="submit">Add Account</button>
+                <div id="success-message" class="success-message"></div>
+            </form>
+        </div>
+
+        <!-- Accounts Table -->
+        <h3>Existing Accounts</h3>
+        <div class="table-responsive">
+            <table id="accountsTable">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Gmail</th>
+                        <th>LRN</th>
+                        <th>Grade</th>
+                        <th>Strand</th>
+                        <th>Section</th>
+                        <th>Student No</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="accountsTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        // ============================================
+        // LOCALSTORAGE FUNCTIONS (NO HARDCODED ACCOUNTS)
+        // ============================================
+
+        // Get accounts from localStorage
+        function getAccounts() {
+            const storedAccounts = localStorage.getItem('accounts');
+            if (storedAccounts) {
+                return JSON.parse(storedAccounts);
+            }
+            return []; // Return empty array if no accounts
+        }
+        // Set max date for DOB to current date (prevent future dates)
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('new-dob').setAttribute('max', today);
+
+        // Save accounts to localStorage
+        function saveAccounts(accounts) {
+            localStorage.setItem('accounts', JSON.stringify(accounts));
+        }
+
+        // ============================================
+        // LOGIN FUNCTIONALITY
+        // ============================================
+
+        function checkLoggedInUser() {
+            const loggedInUser = localStorage.getItem('loggedInUser');
+            if (loggedInUser) {
+                showAdminDashboard(JSON.parse(loggedInUser));
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const gmail = document.getElementById('gmail').value.trim();
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('error');
+            
+            const accounts = getAccounts();
+            
+            // Find matching account
+            const user = accounts.find(acc => acc.gmail.toLowerCase() === gmail.toLowerCase() && acc.password === password);
+            
+            if (user) {
+                errorDiv.classList.remove('show');
+                errorDiv.textContent = '';
+                
+                localStorage.setItem('loggedInUser', JSON.stringify(user));
+                
+                showAdminDashboard(user);
+            } else {
+                errorDiv.textContent = 'Invalid gmail or password. Please try again.';
+                errorDiv.classList.add('show');
+                
+                document.getElementById('password').value = '';
+            }
+        });
+
+        // ============================================
+        // ADMIN DASHBOARD FUNCTIONS
+        // ============================================
+
+        function showAdminDashboard(user) {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('admin-dashboard').style.display = 'block';
+            document.getElementById('admin-welcome').textContent = `Welcome, ${user.username}!`;
+            loadAccountsTable();
+        }
+
+        function loadAccountsTable() {
+            const accounts = getAccounts();
+            const tbody = document.getElementById('accountsTableBody');
+            tbody.innerHTML = '';
+            
+            if (accounts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #666;">No accounts yet. Add your first account above!</td></tr>';
+                return;
+            }
+            
+            accounts.forEach((account, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${account.username}</td>
+                    <td>${account.gmail}</td>
+                    <td>${account.lrn}</td>
+                    <td>${account.gradeLevel}</td>
+                    <td>${account.strand}</td>
+                    <td>${account.section}</td>
+                    <td>${account.studentNo}</td>
+                    <td>
+                        <button class="btn-delete" onclick="deleteAccount(${index})">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // ============================================
+        // ADD ACCOUNT FUNCTIONALITY
+        // ============================================
+
+        document.getElementById('addUserForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const newAccount = {
+                username: document.getElementById('new-username').value.trim(),
+                password: document.getElementById('new-password').value,
+                lrn: document.getElementById('new-lrn').value.trim(),
+                gmail: document.getElementById('new-gmail').value.trim(),
+                dateOfBirth: document.getElementById('new-dob').value,
+                gradeLevel: document.getElementById('new-grade').value.trim(),
+                strand: document.getElementById('new-strand').value.trim(),
+                section: document.getElementById('new-section').value.trim(),
+                studentNo: document.getElementById('new-studentNo').value.trim()
+            };
+            
+            const accounts = getAccounts();
+            accounts.push(newAccount);
+            saveAccounts(accounts);
+            
+            loadAccountsTable();
+            
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = 'Account added successfully!';
+            successDiv.classList.add('show');
+            
+            document.getElementById('addUserForm').reset();
+            
+            setTimeout(() => {
+                successDiv.classList.remove('show');
+            }, 3000);
+        });
+
+        // ============================================
+        // DELETE ACCOUNT FUNCTIONALITY
+        // ============================================
+
+        function deleteAccount(index) {
+            if (confirm('Are you sure you want to delete this account?')) {
+                const accounts = getAccounts();
+                accounts.splice(index, 1);
+                saveAccounts(accounts);
+                loadAccountsTable();
+            }
+        }
+
+        // ============================================
+        // LOGOUT FUNCTIONALITY
+        // ============================================
+
+        function logout() {
+            localStorage.removeItem('loggedInUser');
+            document.getElementById('admin-dashboard').style.display = 'none';
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('gmail').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('error').classList.remove('show');
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+
+        window.onload = function() {
+            checkLoggedInUser();
+        };
+    </script>
+</body>
+</html>
