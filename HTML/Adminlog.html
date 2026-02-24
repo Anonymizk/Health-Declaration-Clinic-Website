@@ -285,47 +285,58 @@
 
     <script>
         // ============================================
-        // DEFAULT ADMIN ACCOUNT
+        // STORAGE KEYS CONFIGURATION
         // ============================================
         
-        const defaultAdmin = [
-            { 
-                username: "Admin", 
-                password: "Admin123", 
-                lrn: "N/A", 
-                gmail: "admin@school.edu", 
-                dateOfBirth: "2024-01-01", 
-                gradeLevel: "Admin", 
-                strand: "Admin", 
-                section: "Admin", 
-                studentNo: "N/A" 
-            }
-        ];
+        const ADMIN_KEY = 'admin_credentials'; // Stores ONLY the admin
+        const USERS_KEY = 'student_accounts';  // Stores ONLY the users
+
+        // Default Admin Account
+        const defaultAdmin = { 
+            username: "Admin", 
+            password: "Admin123", 
+            lrn: "N/A", 
+            gmail: "admin@school.edu", 
+            dateOfBirth: "2024-01-01", 
+            gradeLevel: "Admin", 
+            strand: "Admin", 
+            section: "Admin", 
+            studentNo: "N/A" 
+        };
 
         // ============================================
         // LOCALSTORAGE FUNCTIONS
         // ============================================
 
-        // Get accounts from localStorage
-        function getAccounts() {
-            const storedAccounts = localStorage.getItem('accounts');
-            if (storedAccounts) {
-                return JSON.parse(storedAccounts);
+        // Initialize Storage on Load
+        function initializeStorage() {
+            // Initialize Admin if not present
+            if (!localStorage.getItem(ADMIN_KEY)) {
+                localStorage.setItem(ADMIN_KEY, JSON.stringify(defaultAdmin));
+            }
+            // Initialize Users list if not present
+            if (!localStorage.getItem(USERS_KEY)) {
+                localStorage.setItem(USERS_KEY, JSON.stringify([]));
+            }
+        }
+
+        // Get Users (for table display)
+        function getUsers() {
+            const storedUsers = localStorage.getItem(USERS_KEY);
+            if (storedUsers) {
+                return JSON.parse(storedUsers);
             }
             return [];
         }
 
-        // Save accounts to localStorage
-        function saveAccounts(accounts) {
-            localStorage.setItem('accounts', JSON.stringify(accounts));
+        // Save Users (when adding/deleting)
+        function saveUsers(users) {
+            localStorage.setItem(USERS_KEY, JSON.stringify(users));
         }
 
-        // Initialize default account if localStorage is empty
-        function initializeDefaultAccount() {
-            const storedAccounts = localStorage.getItem('accounts');
-            if (!storedAccounts || JSON.parse(storedAccounts).length === 0) {
-                localStorage.setItem('accounts', JSON.stringify(defaultAdmin));
-            }
+        // Get Admin (for login check)
+        function getAdmin() {
+            return JSON.parse(localStorage.getItem(ADMIN_KEY));
         }
 
         // ============================================
@@ -346,18 +357,17 @@
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('error');
             
-            const accounts = getAccounts();
+            // Get the specific admin object
+            const admin = getAdmin();
             
-            // Find matching account
-            const user = accounts.find(acc => acc.gmail.toLowerCase() === gmail.toLowerCase() && acc.password === password);
-            
-            if (user) {
+            // Check credentials ONLY against the admin object
+            if (admin && gmail.toLowerCase() === admin.gmail.toLowerCase() && password === admin.password) {
                 errorDiv.classList.remove('show');
                 errorDiv.textContent = '';
                 
-                localStorage.setItem('loggedInUser', JSON.stringify(user));
+                localStorage.setItem('loggedInUser', JSON.stringify(admin));
                 
-                showAdminDashboard(user);
+                showAdminDashboard(admin);
             } else {
                 errorDiv.textContent = 'Invalid gmail or password. Please try again.';
                 errorDiv.classList.add('show');
@@ -378,25 +388,25 @@
         }
 
         function loadAccountsTable() {
-            const accounts = getAccounts();
+            const users = getUsers(); // Load from USERS_KEY
             const tbody = document.getElementById('accountsTableBody');
             tbody.innerHTML = '';
             
-            if (accounts.length === 0) {
+            if (users.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #666;">No accounts yet. Add your first account above!</td></tr>';
                 return;
             }
             
-            accounts.forEach((account, index) => {
+            users.forEach((user, index) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${account.username}</td>
-                    <td>${account.gmail}</td>
-                    <td>${account.lrn}</td>
-                    <td>${account.gradeLevel}</td>
-                    <td>${account.strand}</td>
-                    <td>${account.section}</td>
-                    <td>${account.studentNo}</td>
+                    <td>${user.username}</td>
+                    <td>${user.gmail}</td>
+                    <td>${user.lrn}</td>
+                    <td>${user.gradeLevel}</td>
+                    <td>${user.strand}</td>
+                    <td>${user.section}</td>
+                    <td>${user.studentNo}</td>
                     <td>
                         <button class="btn-delete" onclick="deleteAccount(${index})">Delete</button>
                     </td>
@@ -412,7 +422,7 @@
         document.getElementById('addUserForm').addEventListener('submit', function(event) {
             event.preventDefault();
             
-            const newAccount = {
+            const newUser = {
                 username: document.getElementById('new-username').value.trim(),
                 password: document.getElementById('new-password').value,
                 lrn: document.getElementById('new-lrn').value.trim(),
@@ -424,9 +434,9 @@
                 studentNo: document.getElementById('new-studentNo').value.trim()
             };
             
-            const accounts = getAccounts();
-            accounts.push(newAccount);
-            saveAccounts(accounts);
+            const users = getUsers(); // Get current users
+            users.push(newUser);
+            saveUsers(users); // Save back to USERS_KEY
             
             loadAccountsTable();
             
@@ -447,9 +457,9 @@
 
         function deleteAccount(index) {
             if (confirm('Are you sure you want to delete this account?')) {
-                const accounts = getAccounts();
-                accounts.splice(index, 1);
-                saveAccounts(accounts);
+                const users = getUsers();
+                users.splice(index, 1);
+                saveUsers(users);
                 loadAccountsTable();
             }
         }
@@ -472,7 +482,7 @@
         // ============================================
 
         window.onload = function() {
-            initializeDefaultAccount(); // Creates default admin on first load
+            initializeStorage(); // Sets up the separate storage keys
             checkLoggedInUser();
             
             // Set max date for DOB to current date
