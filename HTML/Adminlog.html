@@ -201,15 +201,6 @@
             overflow-x: auto;
         }
 
-        .first-account-notice {
-            background: #fff3cd;
-            color: #856404;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -238,9 +229,6 @@
                 <button type="submit">Login</button>
                 <div id="error" class="error"></div>
             </form>
-            <p style="text-align: center; margin-top: 20px; color: #666; font-size: 14px;">
-                Note: If this is your first time, contact developer to create initial admin account.
-            </p>
         </div>
     </div>
 
@@ -297,7 +285,25 @@
 
     <script>
         // ============================================
-        // LOCALSTORAGE FUNCTIONS (NO HARDCODED ACCOUNTS)
+        // DEFAULT ADMIN ACCOUNT
+        // ============================================
+        
+        const defaultAdmin = [
+            { 
+                username: "Admin", 
+                password: "Admin123", 
+                lrn: "N/A", 
+                gmail: "admin@school.edu", 
+                dateOfBirth: "2024-01-01", 
+                gradeLevel: "Admin", 
+                strand: "Admin", 
+                section: "Admin", 
+                studentNo: "N/A" 
+            }
+        ];
+
+        // ============================================
+        // LOCALSTORAGE FUNCTIONS
         // ============================================
 
         // Get accounts from localStorage
@@ -306,15 +312,20 @@
             if (storedAccounts) {
                 return JSON.parse(storedAccounts);
             }
-            return []; // Return empty array if no accounts
+            return [];
         }
-        // Set max date for DOB to current date (prevent future dates)
-const today = new Date().toISOString().split('T')[0];
-document.getElementById('new-dob').setAttribute('max', today);
 
         // Save accounts to localStorage
         function saveAccounts(accounts) {
             localStorage.setItem('accounts', JSON.stringify(accounts));
+        }
+
+        // Initialize default account if localStorage is empty
+        function initializeDefaultAccount() {
+            const storedAccounts = localStorage.getItem('accounts');
+            if (!storedAccounts || JSON.parse(storedAccounts).length === 0) {
+                localStorage.setItem('accounts', JSON.stringify(defaultAdmin));
+            }
         }
 
         // ============================================
@@ -461,7 +472,12 @@ document.getElementById('new-dob').setAttribute('max', today);
         // ============================================
 
         window.onload = function() {
+            initializeDefaultAccount(); // Creates default admin on first load
             checkLoggedInUser();
+            
+            // Set max date for DOB to current date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('new-dob').setAttribute('max', today);
         };
     </script>
 </body>
