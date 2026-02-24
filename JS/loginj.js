@@ -1,8 +1,11 @@
-// login.js
+// loginj.js
 
-// Get accounts from localStorage (same source as admin)
+// CONSTANT KEY: Must match the one in Adminlog.html
+const USERS_KEY = 'student_accounts';
+
+// Get users from localStorage (reads from 'student_accounts')
 function getAccounts() {
-    const storedAccounts = localStorage.getItem('accounts');
+    const storedAccounts = localStorage.getItem(USERS_KEY);
     if (storedAccounts) {
         return JSON.parse(storedAccounts);
     }
@@ -17,7 +20,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     const password = document.getElementById('password').value;
     const errorDiv = document.getElementById('error');
 
-    // Get accounts from localStorage
+    // Get accounts from localStorage (Student Accounts only)
     const accounts = getAccounts();
 
     // Find matching account
@@ -25,11 +28,13 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
 
     if (user) {
         errorDiv.textContent = "";
-
+        
+        // Optional: Store session
         localStorage.setItem('loggedInUser', JSON.stringify(user));
 
+        // Redirect to student page
         window.location.href = 'FirstBranch.html';
     } else {
-        errorDiv.textContent = "Invalid username or password.";
+        errorDiv.textContent = "Invalid gmail or password.";
     }
 });
